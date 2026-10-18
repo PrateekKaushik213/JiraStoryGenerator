@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jira Story Creator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Jira Story Creator</h1>
+    <p>Upload a requirements document. Claude drafts epics and stories, you review and edit them, then push them to Jira or export them.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <form id="generate-form">
+        <label class="field">
+          <span>Requirement document</span>
+          <input type="file" name="document" accept=".pdf,.docx,.md,.txt" required />
+          <small>PDF, Word (.docx), Markdown or plain text</small>
+        </label>
+        <label class="field">
+          <span>Extra context (optional)</span>
+          <textarea name="context" rows="3" placeholder="e.g. Web app only for MVP. Team uses React + Node. Two-week sprints."></textarea>
+        </label>
+        <button type="submit" id="generate-btn">Generate stories</button>
+        <span id="status" class="status"></span>
+      </form>
+    </section>
+
+    <section id="results" hidden>
+      <div class="toolbar card">
+        <div class="summary" id="summary"></div>
+        <div class="actions">
+          <button type="button" class="secondary" id="export-json">Export JSON</button>
+          <button type="button" class="secondary" id="export-csv">Export CSV</button>
+          <span class="push">
+            <input id="project-key" placeholder="Project key" size="10" />
+            <button type="button" id="push-btn">Push to Jira</button>
+          </span>
+        </div>
+        <div id="push-status" class="status"></div>
+      </div>
+
+      <div id="notes"></div>
+      <div id="epics"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
