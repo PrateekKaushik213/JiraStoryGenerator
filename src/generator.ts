@@ -25,7 +25,9 @@ export interface UploadedDocument {
 
 // PDFs go to Claude as native document blocks (it reads layout and tables);
 // Word files are converted to text first; everything else is read as text.
-async function toContentBlocks(doc: UploadedDocument): Promise<Anthropic.Beta.BetaContentBlockParam[]> {
+async function toContentBlocks(
+  doc: UploadedDocument,
+): Promise<Anthropic.Beta.BetaContentBlockParam[]> {
   const name = doc.filename.toLowerCase();
 
   if (doc.mimetype === "application/pdf" || name.endsWith(".pdf")) {
@@ -33,7 +35,11 @@ async function toContentBlocks(doc: UploadedDocument): Promise<Anthropic.Beta.Be
       {
         type: "document",
         title: doc.filename,
-        source: { type: "base64", media_type: "application/pdf", data: doc.buffer.toString("base64") },
+        source: {
+          type: "base64",
+          media_type: "application/pdf",
+          data: doc.buffer.toString("base64"),
+        },
       },
     ];
   }
@@ -57,8 +63,12 @@ async function toContentBlocks(doc: UploadedDocument): Promise<Anthropic.Beta.Be
   ];
 }
 
-export async function generateBacklog(doc: UploadedDocument, options: GenerateOptions = {}): Promise<Backlog> {
-  const content: Anthropic.Beta.BetaContentBlockParam[] = await toContentBlocks(doc);
+export async function generateBacklog(
+  doc: UploadedDocument,
+  options: GenerateOptions = {},
+): Promise<Backlog> {
+  const content: Anthropic.Beta.BetaContentBlockParam[] =
+    await toContentBlocks(doc);
 
   let instruction = "Create the Jira backlog for this requirement document.";
   if (options.context?.trim()) {
@@ -73,7 +83,10 @@ export async function generateBacklog(doc: UploadedDocument, options: GenerateOp
     betas: ["server-side-fallback-2026-07-01"],
     fallbacks: "default",
     thinking: { type: "adaptive" },
-    output_config: { effort: "high", format: betaZodOutputFormat(BacklogSchema) },
+    output_config: {
+      effort: "high",
+      format: betaZodOutputFormat(BacklogSchema),
+    },
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content }],
   });
@@ -84,10 +97,14 @@ export async function generateBacklog(doc: UploadedDocument, options: GenerateOp
     throw new Error("Claude declined to process this document.");
   }
   if (message.stop_reason === "max_tokens") {
-    throw new Error("The backlog was too large to generate in one pass. Try splitting the document.");
+    throw new Error(
+      "The backlog was too large to generate in one pass. Try splitting the document.",
+    );
   }
   if (!message.parsed_output) {
-    throw new Error("Claude returned output that did not match the backlog schema.");
+    throw new Error(
+      "Claude returned output that did not match the backlog schema.",
+    );
   }
   return message.parsed_output;
 }
